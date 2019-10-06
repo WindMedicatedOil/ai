@@ -1,0 +1,46 @@
+0. Can you come up out 3 sceneraies which use AI methods?
+Ans: 
+1)无人机
+2)购物网站物品推荐
+3)自动驾驶
+
+1. How do we use Github; Why do we use Jupyter and Pycharm;
+Ans:
+1)使用github同步代码，上次作业等
+2)jupyter交互式，可视性强，方便阅读理解
+pycharm功能强大，适合做项目
+
+2. What's the Probability Model?
+Ans:
+通过建立一些概率分布函数等去解决实际问题
+
+3. Can you came up with some sceneraies at which we could use Probability Model?
+Ans:
+预测天气，预测股市走向
+
+4. Why do we use probability and what's the difficult points for programming based on parsing and pattern match?
+Ans:
+1)如果只使用pattern match，输出的词语可能是颠倒的，需要判断是最大概率的语句
+2)如果只使用pattern match，语句不一定准确
+
+5. What's the Language Model;
+Ans:
+把语言的上下文信息表达和传递用概率相关的方式来表达
+
+6. Can you came up with some sceneraies at which we could use Language Model?
+Ans:
+天猫精灵，智能对话机器人
+
+7. What's the 1-gram language model;
+Ans:
+每个词语与后面0个词语有关，在一段语句库中，每个词语的在语句库中的概率的积
+
+8. What's the disadvantages and advantages of 1-gram language model;
+Ans:
+缺点：不准确，采样率少
+优点：速度快，不需要做大量的推导
+
+9. What't the 2-gram models;
+Ans:
+每个词语与后面N+1个（即1个）词语有关，在一段语句库中，每个词语Xn与后一词组（Xn + Xn+1）（即该词语和后一个词语组成的词组）的概率的积，
+可约等于后一词组（Xn + Xn+1）和该词语Xn在语句库中出现个数之比的积
