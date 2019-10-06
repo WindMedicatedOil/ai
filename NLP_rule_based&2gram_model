@@ -1,0 +1,117 @@
+#!/user/bin/env python3
+# -*- coding:utf-8 -*-
+import pandas as pd
+import re
+import jieba
+from collections import Counter
+
+introduce1 = '''
+sentence = noun_1 verb_1 prep_1 noun_2 verb_2 noun_3
+noun_1 = 我们 | 他们 | 我 | 她 | 他 | 它 | 它们
+verb_1 = 喜欢 | 热爱 | 倾向
+prep_1 = 在 | 于 | 来
+noun_2 = 教室里 | 操场上 | 沙滩上
+verb_2 = 打 | 玩 | 看 | 学
+noun_3 = 电视 | 排球 | 电影 | 游戏机
+'''
+introduce2 = '''
+sentence = prep adj_noun_1 verb_noun_2
+prep = 这个 | 那个 | 那些 | 这些
+adj_noun_1 = adj noun_1
+adj = 美丽的 | 漂亮的 | 帅气的 | 丑陋的
+noun_1 = 玻璃 | 演员 | 明星 | 动物
+verb_noun_2 = verb_1 noun_2
+verb_1 = 喜欢 | 厌恶 | 爱 | 追求
+noun_2 = 金钱 | 物质 | 精神 | 快乐
+'''
+
+import random
+
+rules = dict()
+def get_dict(introduce):
+    for line in introduce.split('\n'):
+        if not line:
+            continue
+        # print(line)
+        key, parameter = line.split('=')
+        rules[key.strip()] = parameter.split('|')
+    return rules
+# print(rules)
+
+list_count = list()
+def generate(grammar_rule, target):
+    if target in grammar_rule: # names
+        candidates = grammar_rule[target]  # ['name names', 'name']
+        candidate = random.choice(candidates) #'name names', 'name'
+        list_count.append(candidate)
+        return ''.join(generate(grammar_rule, target=c.strip()) for c in candidate.split())
+    else:
+        return target
+
+# print(len(list_count),list_count)
+
+def generate_n(n):
+    for i in range(n):
+        print(generate(rules,target='sentence'))
+
+comment_txt = pd.read_csv('C:\\Users\\Administrator\\Desktop\\data\\movie_comments.CSV',sep=',',engine='python',encoding='utf-8')
+comment = comment_txt['comment']
+# print(comment)
+comment_str = ''.join(i for i in comment if isinstance(i,str)).strip()
+# print(comment_str)
+#filter:符号
+comment_str_filter1 = re.sub('\W+', '', comment_str).replace("_", '')
+# print(comment_str_filter1)
+#filter:字母
+comment_str_filter2 = re.sub("[A-Za-z0-9]",'',comment_str_filter1)
+# print(comment_str_filter2)
+
+#check string:
+# with open('C:\\Users\\Administrator\\Desktop\\data\\movie_comments.txt',"w+",encoding='utf-8') as file:
+#     file.write(comment_str_filter2)
+
+#1 word
+TOKENS = list(jieba.cut(comment_str_filter2))
+words_count = Counter(TOKENS)
+#2 words
+_2_gram_words = [TOKENS[i] + TOKENS[i+1] for i in range(len(TOKENS)-1)]
+_2_gram_word_counts = Counter(_2_gram_words)
+
+def get_gram_count(word, wc):
+    if word in wc: return wc[word]
+    else:
+        return wc.most_common()[-1][-1]
+
+
+def two_gram_model(whole_sentence):
+    # 2-gram langauge model
+    tokens = list(jieba.cut(whole_sentence))
+
+    probability = 1
+
+    for i in range(len(tokens) - 1):
+        word = tokens[i]
+        next_word = tokens[i + 1]
+
+        _two_gram_c = get_gram_count(word + next_word, _2_gram_word_counts)
+        _one_gram_c = get_gram_count(next_word, words_count)
+        pro = _two_gram_c / _one_gram_c
+
+        probability *= pro
+
+    return probability
+
+# print(two_gram_model('这个小猪喜欢吃素'))
+
+get_dict(introduce1)
+
+gen_n_pro = dict()
+def generate_best(n):
+    for i in range(n):
+        final_sentence = generate(rules,target='sentence')
+        gen_n_pro[final_sentence]=two_gram_model(final_sentence)
+        list_n = sorted(gen_n_pro.items(),key=lambda x: x[1], reverse=True)
+    return list_n[0]
+
+generate_best(20)
+print(generate_best(20))
